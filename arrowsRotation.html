@@ -1,0 +1,63 @@
+<html>
+<head>
+<script type="text/javascript">
+	var c;// Canvas context
+	var H,W;
+		function main(){
+			var d=document.getElementById("canvas");
+			H=d.height;
+			W=d.width;
+			c=d.getContext("2d");// defining canvas parameters
+		 	//c.clearRect(0,0,W,H);
+rotate(c);
+}//end main
+function rotate(c){
+var x = [600,600,590,610],//points of Arrow <-
+	y = [-25,25, 0,0],
+	i,j,pi,phi,cos_phi,sin_phi,xx,yy;	
+	
+		c.strokeStyle='red';
+		c.beginPath();
+		c.moveTo(x[0],y[0]); 
+		for(j=1;j<=3;j++)
+		c.lineTo(x[j],y[j]);
+	 	c.lineTo(x[1],y[1]);
+		c.stroke();          //drawing initial red arrow
+	
+	pi=4*Math.atan(1);  //pi=3.141592653589793
+	phi=6*pi/180;       //rotation angle in deg
+	cos_phi=Math.cos(phi);	sin_phi=Math.sin(phi);
+
+
+	for(i=1;i<=14;i++){    //number of iteraions
+	 	
+		  	
+			for(j=0;j<14;j++){ 			 //rotating all 4 points
+				//alert(x[0]);
+				xx=x[j]; yy=y[j];           //old coords
+				x[j]=xx*cos_phi-yy*sin_phi; //new coords
+				y[j]=xx*sin_phi+yy*cos_phi;
+				}
+			
+	    //Building rotated arrow
+	  	c.strokeStyle='green';
+	 	if(i%2==0){c.strokeStyle='magenta';}//just for fun
+		c.beginPath();	
+		c.moveTo(x[0],y[0]);
+		for(j=1;j<=3;j++)
+		c.lineTo(x[j],y[j]);
+		c.lineTo(x[1],y[1]);//closing path
+		c.stroke();         //Drawing rotated arrow
+	}
+    
+}//end function
+
+
+</script>
+</head>
+<body onload="main()">
+<canvas id="canvas" width="800" height="750">
+	Ваш браузер не поддерживает канвас
+</canvas>	
+</body>
+</html>

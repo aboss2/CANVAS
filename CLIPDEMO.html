@@ -1,0 +1,106 @@
+<html>
+<head>
+<script type="text/javascript">
+	var c;// Canvas context
+	var H,W;
+		function main(){
+			var d=document.getElementById("canvas");
+			H=d.height;
+			W=d.width;
+			c=d.getContext("2d");// defining canvas parameters
+		 	c.strokeRect(0,0,W,H);
+		 
+clipdemo(c);
+
+//var p=100,q=650;//center DEBUG
+//var R=1000;    //radius
+//for(var i=0;i<2*Math.PI;i+=0.628/8){clip(p,q,p+R*Math.cos(i),q+R*Math.sin(i));}
+
+}//end main
+
+var xmin=100, xmax=700, ymin=200, ymax=600; //View area global variables
+
+function clipdemo(c){
+	var i,
+	r,alpha=72*Math.PI/180,phi,phi0=0,
+	x0=400,y0=400,  //pentagon's central point
+	x1,y1,  
+	x2,y2;     
+	
+		c.strokeStyle='red'; //drawing red Display window
+		c.beginPath();
+		c.moveTo(xmin,ymin);
+		c.lineTo(xmax,ymin);
+		c.lineTo(xmax,ymax);
+		c.lineTo(xmin,ymax);
+		c.lineTo(xmin,ymin);
+		c.stroke();
+		
+//drawing pivot	
+//c.beginPath(); c.arc(xmax,ymax,5, 0,2*Math.PI,true); c.fill();
+
+for(r=50;r<500;r+=50){     	 //building pentagons
+	x2=x0+r*Math.cos(phi0);//remembering first point of figure for i=0
+	y2=y0+r*Math.sin(phi0);
+   c.beginPath();
+		for(i=1;i<6;i++){
+			phi=phi0+i*alpha;
+			
+			x1=x0+r*Math.cos(phi);
+			y1=y0+r*Math.sin(phi);
+	
+			//c.lineTo(x1,y1);
+			clip(x2,y2,x1,y1);
+			//alert(i);
+			x2=x1;y2=y1;    // remembering old coordinates
+		 	//c.stroke();
+			}
+	}
+	
+}//end function
+function code(x,y){/* generates code **** depending on point position
+	                          xmin=100   xmax=700,
+	                ymin=200         A 2 6 
+	                                 8 0 4
+	                ymax=600         9 1 5     	*/
+return  (x<xmin)<<3|(x>xmax)<<2|(y<ymin)<<1|(y>ymax);
+}
+
+function clip(x1,y1,x2,y2){
+	var c1=code(x1,y1),c2=code(x2,y2),
+	dx,dy;
+	
+	while(c1|c2){ // while at least one point out of window (code!=0000)
+		if(c1&c2) return;//both points on one side out of window -> need no cropping
+		dx=x2-x1; dy=y2-y1;// dy/dx ~ sin()
+		if(c1){  //FIRST point out of window (c1!=0)
+			if(x1<xmin){y1+=dy*(xmin-x1)/dx;x1=xmin;}     //is on the left? ->crop till left line
+			else if(x1>xmax){y1+=dy*(xmax-x1)/dx;x1=xmax;}//is on the right?->crop till right line
+			else if(y1<ymin){x1+=dx*(ymin-y1)/dy;y1=ymin;}//is under window?->crop till bottom line
+			else if(y1>ymax){x1+=dx*(ymax-y1)/dy;y1=ymax;}//is above window?->crop till upper line
+			c1=code(x1,y1);//update points code
+			}
+		else{   //FIRST point is in window area(c1==0) -> start Tweaking second point
+			if(x2<xmin)     {y2+=dy*(xmin-x2)/dx;x2=xmin;}//is on the left? ->crop till left line
+			else if(x2>xmax){y2+=dy*(xmax-x2)/dx;x2=xmax;}//is on the right?->crop till right line
+			else if(y2<ymin){x2+=dx*(ymin-y2)/dy;y2=ymin;}//is under window?->crop till bottom line
+			else if(y2>ymax){x2+=dx*(ymax-y2)/dy;y2=ymax;}//is above window?->crop till upper line
+			c2=code(x2,y2);//update points code
+			}
+	}//end while -> line clipped 
+	
+	c.moveTo(x1,y1);//draw clipped line
+	c.lineTo(x2,y2);
+	c.stroke();
+	
+}//end clip function
+
+
+</script>
+</head>
+<body onload="main()">
+<canvas id="canvas" width="750" height="650">
+	Ваш браузер не поддерживает канвас
+</canvas>	
+</body>
+</html>

@@ -1,0 +1,47 @@
+<html>
+<head>
+<script type="text/javascript">
+	var c;// Canvas context
+	var H,W;
+		function main(){
+			var d=document.getElementById("canvas");
+			H=d.height;
+			W=d.width;
+			c=d.getContext("2d");// defining canvas parameters
+		 	//c.clearRect(0,0,W,H);
+		 	c.strokeRect(0,0,W,H);
+star(400,350,100);
+}//end main-------------------------------------------------------------
+
+function star( xC,yC,r){                 //star center and radius
+	var phi,r_half,r_double,factor=0.0174533; /* factor=PI/180 */
+	if (r<25) return;   //minimal recursive stars radius
+	//pmove(xC+r,yC);   //writing to file not ready yet 
+	c.moveTo(xC+r,yC);   
+	for(var i=1;i<=5;i++){    //building PARENT star
+		phi=i*144*factor;
+		//pdraw(xC+r*Math.cos(phi),yC+r*Math.sin(phi));//not ready
+		c.lineTo(xC+r*Math.cos(phi),yC+r*Math.sin(phi));
+		c.stroke();
+		}
+	r_half=0.5*r;  r_double=2*r;
+	for (var j=0;j<5;j++){//5 CHILD (stelite) stars for this PARENT star
+		
+		phi=(36+j*72)*factor;
+			star(
+				xC+r_double*Math.cos(phi), //satellite star center
+				yC+r_double*Math.sin(phi),
+				r_half                      // half smaller
+				);
+		}
+		//alert("pause");
+}//End Star function----------------------------------------------------
+
+</script>
+</head>
+<body onload="main()">
+<canvas id="canvas" width="800" height="650">
+	Ваш браузер не поддерживает канвас
+</canvas>	
+</body>
+</html>

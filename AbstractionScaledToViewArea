@@ -1,0 +1,127 @@
+<html>
+<head><title>Abstraction</title>
+<script type="text/javascript">
+	var c;// Canvas context
+	var H,W;
+	var arrP =new Array();  //Array of points (x,y,penUp=0|penDown=1)
+function main()
+{			var d=document.getElementById("canvas");
+			H=d.height;
+			W=d.width;
+			c=d.getContext("2d");// defining canvas parameters
+		 	//c.clearRect(0,0,W,H);
+		 	c.strokeStyle="red";	
+			c.strokeRect(1,1,W-1,H-1);
+
+			curvGen(10,10);//generating array of points arrP[]
+			genplot(); //drawing adjusted (scaled) curve based on arrP[]
+
+}//end main-------------------------------------------------------------
+function genplot(){ //adjust (scale+center) and drawing function
+					//arrP[] contains input data
+ var Xmin=25,          // <--------------View area (default)
+	 Xmax=550,
+	 Ymin=15 ,
+	 Ymax=500;    
+ Xmin=(Math.random()*1000)%300;   // <--------------View area (randomize)
+ Xmax=Xmin+400;
+ Ymin=(Math.random()*1000)%200; 
+ Ymax=Ymin+400;	
+ var x,y,xmin=Number.MAX_VALUE,
+		 ymin=Number.MAX_VALUE,
+		 xmax=Number.MIN_VALUE,
+		 ymax=Number.MIN_VALUE,
+		 X,Y,fx,fy,f,xC,yC,XC,YC,c1,c2;
+		 
+c.strokeRect(Xmin,Ymin,Xmax-Xmin,Ymax-Ymin);//draw View area
+
+ var arrPlength=arrP.length;		 
+ for(var i=0;i<arrPlength;i++){// defining figure's dimentions
+	x=arrP[i].xx;	 y=arrP[i].yy;
+	if(x<xmin)xmin=x;
+	if(x>xmax)xmax=x;
+	if(y<ymin)ymin=y;
+	if(y>ymax)ymax=y;
+ }
+	
+fx=(Xmax-Xmin)/(xmax-xmin);  //calculating scale factor of 2 axes
+fy=(Ymax-Ymin)/(ymax-ymin);  //XY:View area;xy:Window area(world)
+f=(fx<fy?fx:fy);             //choosing the smallest factor
+
+xC=0.5*(xmin+xmax);yC=0.5*(ymin+ymax);//center of Window (world)
+XC=0.5*(Xmin+Xmax);YC=0.5*(Ymin+Ymax);//center of view area on canwas
+c1=XC-f*xC;//constant shift for centering figure in View area
+c2=YC-f*yC; 
+
+for(var i=0;i<arrPlength;i++){
+	x=arrP[i].xx;	 y=arrP[i].yy; 
+	X=f*x+c1; //FINAL COORDINATES
+	Y=f*y+c2;
+//c.beginPath();c.arc(X,Y,4, 0,2*Math.PI,true);c.strokeStyle="green";c.stroke();
+	if(arrP[i].ii) c.lineTo(X,Y); else {c.moveTo(X,Y);}
+//alert(i+" "+X+" "+Y);
+}
+c.strokeStyle="magenta";c.stroke(); c.fill();
+
+}//End function genplot-------------------------------------------------
+
+function curvGen(x,y){//generating curve and saving it to arrP[]
+	var i,N=100,    //<---------------------Number of points
+	x=W/2,y=H/2,  			// curve`s start position
+	x0,y0,phi; 
+ 
+	pmove(x,y);//write to array initial point
+
+	for(i=1;i<=N;i++){	
+		x0=x;y0=y;         //x0, y0 - previous coordinates saving
+		phi=direction();   // generating new direction angle to move
+		x=x0+Math.cos(phi); //generating new coordinates based on direction
+		y=y0+Math.sin(phi);
+
+		pdraw(x,y);       //write to (file) this coordinates
+	}
+}//End function curvGen-------------------------------------------------
+
+function direction(){ // generating new direction angle with limitation
+	//"static" variables initialised in the first call only
+	direction.phi;    //current direction
+	direction.alpha;  //rotation angle
+	if(direction.phi==undefined){direction.phi=0;}
+	if(direction.alpha==undefined){direction.alpha=0;}
+	direction.alpha+=parseInt((Math.random()*100)%13-6);// +=-6..+6
+    if(Math.abs(direction.alpha)>15) {direction.alpha=0;}//rotation ange limitation
+    direction.phi+=direction.alpha;   //new direction
+	return parseFloat(direction.phi*Math.PI/180); //return in RADs
+}//End function direction-----------------------------------------------
+
+function struct(){ //structure Point : x,y,i= pen Down?
+	this.xx;
+	this.yy;
+	this.ii;
+	return this;
+}
+
+function pmove(x,y){ // saving to arrP[]  move point
+	var s=new struct;
+	s.xx=x; s.yy=y; s.ii=0; //0=pen up
+	//fwrite(&s,sizeof s,1,fp);
+	arrP.push(s);
+	//alert(s.ii);
+}//End function pmove()
+
+function pdraw(x,y){ // saving to arrP[]  draw point
+	var s=new struct;
+	s.xx=x; s.yy=y; s.ii=1; //1=pen down
+	//fwrite(&s,sizeof s,1,fp);
+	arrP.push(s);
+}//End function pmove()
+
+</script>
+</head>
+<body onload="main()">
+<div id="here"> <div>
+<canvas id="canvas" width="800" height="600">
+	Ваш браузер не поддерживает канвас
+</canvas>	
+</body>
+</html>

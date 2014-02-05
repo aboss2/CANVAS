@@ -31,14 +31,14 @@ deviation=Math.random()*100%(2*delta+1)-delta;
 
 alpha=(45+deviation)*Math.PI/180;
 x[0]=x[3]=x0; x[1]=x[2]=x0+a;   /*         4                     */
-y[0]=y[1]=y0; y[2]=y[3]=y0+a;   /*cat34-> /_alpha_               */
+y[0]=y[1]=y0; y[2]=y[3]=y0-a;   /*cat34-> /_alpha_               */
 calpha=Math.cos(alpha);         /*       3       2               */
 salpha=Math.sin(alpha);         /*               |               */
 cat34=a*calpha;cat24=a*salpha;  /*    -> 0_______1  phi=0(not rotated)*/
 x[4]=x[3]+cat34*calpha;	        /*          a                    */
-y[4]=y[3]+cat34*salpha;
+y[4]=y[3]-cat34*salpha;
 
-cphi=Math.cos(phi);sphi=Math.sin(phi);//rotation about x0y0 through  phi
+cphi=Math.cos(phi);sphi=Math.sin(-phi);//rotation about x0y0 through  phi
 c1=x0-x0*cphi+y0*sphi;
 c2=y0-x0*sphi-y0*cphi;
 for(i=0;i<5;i++){
@@ -94,6 +94,9 @@ for(var i=0;i<arrPlength;i++){
 	x=arrP[i].xx;	 y=arrP[i].yy; 
 	X=f*x+c1; //FINAL COORDINATES
 	Y=f*y+c2;
+	
+
+	
 //c.beginPath();c.arc(X,Y,4, 0,2*Math.PI,true);c.strokeStyle="green";c.stroke();
 	if(arrP[i].ii) c.lineTo(X,Y); else {c.moveTo(X,Y);}
 //alert(i+" "+X+" "+Y);
@@ -101,18 +104,6 @@ for(var i=0;i<arrPlength;i++){
 //c.strokeStyle="magenta";c.stroke(); 
 c.fill();
 }//End function genplot-------------------------------------------------
-
-function direction(){ // generating new direction angle with limitation
-	//"static" variables initialised in the first call only
-	direction.phi;    //current direction
-	direction.alpha;  //rotation angle
-	if(direction.phi==undefined){direction.phi=0;}
-	if(direction.alpha==undefined){direction.alpha=0;}
-	direction.alpha+=parseInt((Math.random()*100)%13-6);// +=-6..+6
-    if(Math.abs(direction.alpha)>15) {direction.alpha=0;}//rotation ange limitation
-    direction.phi+=direction.alpha;   //new direction
-	return parseFloat(direction.phi*Math.PI/180); //return in RADs
-}//End function direction-----------------------------------------------
 
 function struct(){ //structure Point : x,y,i= pen Down?
 	this.xx;

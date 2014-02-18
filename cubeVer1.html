@@ -1,0 +1,103 @@
+<html>
+<head>
+<script>
+window.onload=function(){
+var	c=document.getElementById("paper").getContext("2d"),
+W=document.getElementById("paper").width,
+H=document.getElementById("paper").height;
+c.strokeRect(0,0,W,H);
+
+var i=0;
+setInterval(function(){//animation
+c.clearRect(1,1,W-2,H-2);
+i=(i+0.1)%1500;
+document.getElementById("i").innerHTML=i;
+
+cube(screen_dist=250+i,rho=1000,theta=i/3,phi=45+i,h=299);
+
+},10);
+
+
+
+function cube(screen_dist,rho,theta,phi,h){
+var 
+//screen_dist=70,  //dist from viewpoint to screen (d)
+//rho=120,     		//viewing distance 
+//theta=454,       //horizontal angle from x-axis (deg)
+//phi=45,          // vertical angle from z-axis
+//h=70,            // half of cube edge
+c1=W/2,c2=H/2,   //canvas center
+X,Y,			// global 2d screen coordinates
+v11,v12,v13,v21,v22,v23,v32,v33,v43; //matrix elements
+
+coeff(rho,theta,phi);
+
+c.lineWidth=5; //AXES width
+
+c.beginPath();mv(0,0,0);c.strokeStyle='blue';  dw(50,0,0);c.fillStyle='blue';c.arc(X,Y,5,0,2*3.14);c.fill();
+c.beginPath();mv(0,0,0);c.strokeStyle='red';   dw(0,50,0);c.fillStyle='red';c.arc(X,Y,5,0,2*3.14);c.fill();
+c.beginPath();mv(0,0,0);c.strokeStyle='green'; dw(0,0,50);c.fillStyle='green';c.arc(X,Y,5,-2*3.14,0.5*3.14);c.fill();
+c.beginPath();
+{
+c.lineWidth=2;
+mv(h,-h,-h);dw(h,h,-h); c.strokeText('A',X,Y);//draw AB----------------------------
+dw(-h,h,-h);c.strokeText('B',X,Y);			//draw BC
+dw(-h,h,h);		c.strokeText('C',X,Y);		//draw CG
+dw(-h,-h,h);		//draw GH
+dw(h,-h,h);				//draw HE
+dw(h,-h,-h);			//draw EA
+c.strokeStyle='red';c.stroke();
+
+c.beginPath();c.strokeStyle='green';
+mv(h,h,-h);dw(h,h,h);	//move to B draw BF
+			
+c.arc(X,Y,2,0,2*3.14);c.fill();	c.strokeText('D',X,Y);		
+dw(-h,h,h);			 	 //draw FG 	
+mv(h,h,h);dw(h,-h,h);	 //draw FE
+mv(h,-h,-h);dw(-h,-h,-h);//draw AD
+dw(-h,h,-h);			 //draw DC
+mv(-h,-h,-h);dw(-h,-h,h);//draw DH-----------------------------
+}
+
+function perspective(x,y,z){ //transformation of coordinates& perspective
+var xe,ye,ze;		/*eye coordinates*/
+xe=v11*x + v21*y;
+ye=v12*x + v22*y + v32*z;
+ze=v13*x + v23*y + v33*z + v43;
+
+X=screen_dist*xe/ze+c1; /*2D screen coordinates*/
+Y=screen_dist*ye/ze+c2;
+}
+
+function mv(x,y,z){ //move in 3D
+	perspective(x,y,z);
+	c.moveTo(X,Y);
+}
+function dw(x,y,z){//draw in 3D
+	perspective(x,y,z);
+	c.lineTo(X,Y);
+	c.stroke();
+}
+
+function coeff(rho,theta,phi){//calculating transform matrix coefficients for getting eye coordinates
+	var th,ph,costh,sinth,cosph,sinph,factor=Math.PI/180;
+	
+	th=theta*factor; ph=phi*factor;/*Angles in radians*/
+	costh=Math.cos(th); sinth=Math.sin(th);
+	cosph=Math.cos(ph); sinph=Math.sin(ph);
+	v11=-sinth; v12=-(-cosph*costh); v13=-sinph*costh; /*elements for matrix V*/
+	v21=costh;  v22=-(-cosph*sinth); v23=-sinph*sinth;
+	            v32=-(sinph);        v33=-cosph;     v43=rho;
+}			       	/*  ^---minus as my y axe goes down!  */
+
+}//End cube function
+
+
+}//End onload
+</script>
+</head>
+<body><h3 id='i'></h3>
+<canvas id="paper" width="800" height ="600"></canvas>
+<h3>X-blue Y-red Z-green</h3>
+</body>
+</html>
